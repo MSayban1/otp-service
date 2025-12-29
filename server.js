@@ -12,6 +12,7 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use((req, res, next) => {
+    console.log(`${req.method} ${req.url}`);
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-api-key');
@@ -50,6 +51,12 @@ async function startServer() {
 
         app.listen(PORT, '0.0.0.0', () => {
             console.log(`Server is running on port ${PORT}`);
+        });
+
+        // Catch-all 404 for debugging
+        app.use((req, res) => {
+            console.log(`404: ${req.method} ${req.url}`);
+            res.status(404).json({ error: `Path ${req.url} not found` });
         });
     } catch (error) {
         console.error('Failed to start server:', error);
