@@ -12,17 +12,26 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use((req, res, next) => {
-    console.log(`${req.method} ${req.url}`);
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-api-key');
+    res.header('Access-Control-Max-Age', '86400');
 
-    // Support Private Network Access for calling localhost from HTTPS websites
     if (req.method === 'OPTIONS') {
         res.header('Access-Control-Allow-Private-Network', 'true');
         return res.sendStatus(200);
     }
     next();
+});
+
+// Basic Health/Status check
+app.get('/api/status', (req, res) => {
+    res.json({
+        status: 'online',
+        timestamp: new Date().toISOString(),
+        node_env: process.env.NODE_ENV || 'development'
+    });
 });
 app.use(helmet({
     contentSecurityPolicy: false,
