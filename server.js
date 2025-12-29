@@ -45,8 +45,11 @@ async function startServer() {
         // Setup Routes
         app.use('/api', setupRoutes(db));
 
-        app.listen(PORT, () => {
-            console.log(`Server is running on http://localhost:${PORT}`);
+        // Health check for deployment
+        app.get('/', (req, res) => res.status(200).send('OTP Service is running.'));
+
+        app.listen(PORT, '0.0.0.0', () => {
+            console.log(`Server is running on port ${PORT}`);
         });
     } catch (error) {
         console.error('Failed to start server:', error);
