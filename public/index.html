@@ -26,15 +26,35 @@
         }
 
         .sidebar-btn {
-            @apply w-full text-left p-3 rounded hover:bg-slate-800 transition flex items-center gap-3;
+            width: 100%;
+            text-align: left;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #94a3b8;
+        }
+
+        .sidebar-btn:hover {
+            background-color: #1e293b;
+            color: white;
         }
 
         .sidebar-btn.active {
-            @apply bg-indigo-600;
+            background-color: #4f46e5;
+            color: white;
         }
 
-        [v-cloak] {
-            display: none;
+        @media (max-width: 1024px) {
+            .sidebar-open {
+                transform: translateX(0);
+            }
+
+            .sidebar-closed {
+                transform: translateX(-100%);
+            }
         }
     </style>
 </head>
@@ -43,39 +63,56 @@
     <!-- Login Page -->
     <div id="login-screen" class="fixed inset-0 bg-slate-900 z-[100] flex items-center justify-center p-4">
         <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md">
-            <h1 class="text-3xl font-bold mb-2 text-slate-900">Admin Login</h1>
-            <p class="text-gray-500 mb-8">Enter your credentials to manage systems</p>
+            <h1 class="text-3xl font-bold mb-2 text-slate-900 text-center">Admin Login</h1>
+            <p class="text-gray-500 mb-8 text-center text-sm">Enter your credentials to manage systems</p>
             <form id="login-form" class="space-y-6">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
                     <input type="text" name="username" placeholder="admin"
-                        class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" required>
+                        class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                        required>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
                     <input type="password" name="password" placeholder="••••••••"
-                        class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" required>
+                        class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                        required>
                 </div>
                 <button type="submit"
-                    class="w-full bg-indigo-600 text-white p-3 rounded-xl font-semibold hover:bg-indigo-700 transition">Login
-                    Dashboard</button>
+                    class="w-full bg-indigo-600 text-white p-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200">
+                    Access Dashboard
+                </button>
             </form>
         </div>
     </div>
 
     <div id="app-content" class="flex hidden">
+        <!-- Sidebar Overlay (Mobile) -->
+        <div id="sidebar-overlay" onclick="toggleSidebar(false)"
+            class="fixed inset-0 bg-slate-900/50 z-[40] hidden lg:hidden backdrop-blur-sm"></div>
+
         <!-- Sidebar -->
-        <aside class="w-72 bg-slate-900 text-white min-h-screen p-6 fixed h-full flex flex-col">
-            <div class="flex items-center gap-3 mb-10">
-                <div id="sidebar-picture"
-                    class="w-10 h-10 bg-indigo-500 rounded-lg flex items-center justify-center font-bold text-xl overflow-hidden">
-                    S
+        <aside id="sidebar"
+            class="w-72 bg-slate-900 text-white fixed h-full z-[50] transition-transform duration-300 lg:translate-x-0 sidebar-closed flex flex-col p-6">
+            <div class="flex items-center justify-between mb-10">
+                <div class="flex items-center gap-3">
+                    <div id="sidebar-picture"
+                        class="w-10 h-10 bg-indigo-500 rounded-lg flex items-center justify-center font-bold text-xl overflow-hidden">
+                        S
+                    </div>
+                    <h1 class="text-xl font-bold text-white truncate max-w-[150px]" id="active-system-name">OTP Service
+                    </h1>
                 </div>
-                <h1 class="text-xl font-bold text-white truncate" id="active-system-name">OTP Service</h1>
+                <button onclick="toggleSidebar(false)" class="lg:hidden text-slate-400 hover:text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
             </div>
 
-            <nav class="space-y-2 flex-grow">
-                <button onclick="showSection('systems')" class="sidebar-btn" id="btn-systems">
+            <nav class="space-y-2 flex-grow overflow-y-auto custom-scrollbar">
+                <button onclick="showSection('systems'); toggleSidebar(false);" class="sidebar-btn" id="btn-systems">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 6h16M4 12h16m-7 6h7"></path>
@@ -85,7 +122,7 @@
                 <div class="border-t border-slate-800 my-4"></div>
 
                 <div id="system-menu" class="space-y-2 hidden">
-                    <button onclick="showSection('smtp')" class="sidebar-btn" id="btn-smtp">
+                    <button onclick="showSection('smtp'); toggleSidebar(false);" class="sidebar-btn" id="btn-smtp">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
@@ -93,7 +130,8 @@
                         </svg>
                         System Settings
                     </button>
-                    <button onclick="showSection('templates')" class="sidebar-btn" id="btn-templates">
+                    <button onclick="showSection('templates'); toggleSidebar(false);" class="sidebar-btn"
+                        id="btn-templates">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
@@ -101,7 +139,7 @@
                         </svg>
                         Templates
                     </button>
-                    <button onclick="showSection('logs')" class="sidebar-btn" id="btn-logs">
+                    <button onclick="showSection('logs'); toggleSidebar(false);" class="sidebar-btn" id="btn-logs">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
@@ -109,14 +147,14 @@
                         </svg>
                         OTP Logs
                     </button>
-                    <button onclick="showSection('test')" class="sidebar-btn" id="btn-test">
+                    <button onclick="showSection('test'); toggleSidebar(false);" class="sidebar-btn" id="btn-test">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                         </svg>
                         Test OTP
                     </button>
-                    <button onclick="showSection('docs')" class="sidebar-btn" id="btn-docs">
+                    <button onclick="showSection('docs'); toggleSidebar(false);" class="sidebar-btn" id="btn-docs">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
@@ -138,8 +176,26 @@
             </button>
         </aside>
 
-        <!-- Main Content -->
-        <main class="ml-72 p-10 w-full relative">
+        <!-- Main Content Wrapper -->
+        <main id="main-content" class="lg:ml-72 p-4 lg:p-10 w-full relative transition-all duration-300">
+            <!-- Mobile Header -->
+            <header
+                class="lg:hidden flex items-center justify-between mb-8 p-4 bg-white rounded-2xl shadow-sm border border-gray-100">
+                <button onclick="toggleSidebar(true)"
+                    class="p-2 text-slate-600 hover:bg-slate-50 rounded-xl transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16m-7 6h7"></path>
+                    </svg>
+                </button>
+                <div class="flex items-center gap-2">
+                    <div
+                        class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center font-bold text-white text-xs">
+                        S</div>
+                    <span class="font-bold text-slate-900">OTP Service</span>
+                </div>
+                <div class="w-10"></div>
+            </header>
             <div id="toast"
                 class="hidden fixed top-5 right-5 p-4 rounded-lg shadow-xl text-white transform transition-all duration-300 translate-x-full z-[200]">
             </div>
@@ -315,7 +371,8 @@
                     <div>
                         <h3 class="text-xl font-semibold mb-2">1. Authentication</h3>
                         <p class="text-gray-600 mb-4">All API requests must include your API key in the
-                            <code>x-api-key</code> header.</p>
+                            <code>x-api-key</code> header.
+                        </p>
                         <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
                             <span class="text-sm font-mono text-indigo-600">x-api-key: <span id="doc-api-key"
                                     class="font-bold text-slate-900 underline">SELECT A SYSTEM</span></span>
@@ -605,78 +662,96 @@ fetch('<span class="api-url"></span>/api/send-otp', {
             setTimeout(() => { t.classList.add('translate-x-full'); setTimeout(() => t.classList.add('hidden'), 300); }, 3000);
         }
 
+        function toggleSidebar(show) {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            if (show) {
+                sidebar.classList.remove('sidebar-closed');
+                sidebar.classList.add('sidebar-open');
+                overlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.remove('sidebar-open');
+                sidebar.classList.add('sidebar-closed');
+                overlay.classList.add('hidden');
+            }
+        }
+
         function updateDocs() {
             const origin = window.location.origin;
             document.querySelectorAll('.api-url').forEach(el => el.textContent = origin);
         }
 
-        // Forms
-        document.getElementById('login-form').onsubmit = login;
-
-        document.getElementById('system-form').onsubmit = async (e) => {
-            e.preventDefault();
-            const data = Object.fromEntries(new FormData(e.target));
-            const res = await fetch(`${api.base}/system`, {
-                method: 'POST',
-                headers: api.headers(),
-                body: JSON.stringify(data)
-            });
-            if (res.ok) {
-                showToast('System created!');
-                toggleModal('system-modal', false);
-                await loadSystems();
-                e.target.reset();
+        // Forms - Safe attachment
+        const forms = {
+            'login-form': login,
+            'system-form': async (e) => {
+                e.preventDefault();
+                const data = Object.fromEntries(new FormData(e.target));
+                const res = await fetch(`${api.base}/system`, {
+                    method: 'POST',
+                    headers: api.headers(),
+                    body: JSON.stringify(data)
+                });
+                if (res.ok) {
+                    showToast('System created!');
+                    toggleModal('system-modal', false);
+                    await loadSystems();
+                    e.target.reset();
+                }
+            },
+            'smtp-form': async (e) => {
+                e.preventDefault();
+                const data = Object.fromEntries(new FormData(e.target));
+                const res = await fetch(`${api.base}/update-smtp`, {
+                    method: 'POST',
+                    headers: api.headers(),
+                    body: JSON.stringify(data)
+                });
+                if (res.ok) {
+                    showToast('Settings saved successfully!');
+                    loadSystems();
+                    loadData();
+                } else {
+                    const err = await res.json();
+                    showToast(err.error || 'Save failed', true);
+                }
+            },
+            'template-form': async (e) => {
+                e.preventDefault();
+                const data = Object.fromEntries(new FormData(e.target));
+                data.systemId = currentSystemId;
+                const res = await fetch(`${api.base}/create-template`, {
+                    method: 'POST',
+                    headers: api.headers(),
+                    body: JSON.stringify(data)
+                });
+                if (res.ok) {
+                    showToast('Template Saved!');
+                    toggleModal('template-modal', false);
+                    loadData();
+                }
+            },
+            'test-otp-form': async (e) => {
+                e.preventDefault();
+                const data = Object.fromEntries(new FormData(e.target));
+                const system = systems.find(s => s.id === currentSystemId);
+                const res = await fetch(`${api.base}/send-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-api-key': system.api_key },
+                    body: JSON.stringify({ email: data.email, templateId: data.templateId, templateData: { USERNAME: 'Tester', APP_NAME: system.name } })
+                });
+                if (res.ok) showToast('Test OTP delivered!'); else showToast('Send failed', true);
             }
         };
 
-        document.getElementById('smtp-form').onsubmit = async (e) => {
-            e.preventDefault();
-            const data = Object.fromEntries(new FormData(e.target));
-            const res = await fetch(`${api.base}/update-smtp`, {
-                method: 'POST',
-                headers: api.headers(),
-                body: JSON.stringify(data)
-            });
-            if (res.ok) {
-                showToast('Settings saved successfully!');
-                loadSystems(); // To update sidebar/cards logo
-                loadData();
-            } else {
-                const err = await res.json();
-                showToast(err.error || 'Save failed', true);
-            }
-        };
-
-        document.getElementById('template-form').onsubmit = async (e) => {
-            e.preventDefault();
-            const data = Object.fromEntries(new FormData(e.target));
-            data.systemId = currentSystemId;
-            const res = await fetch(`${api.base}/create-template`, {
-                method: 'POST',
-                headers: api.headers(),
-                body: JSON.stringify(data)
-            });
-            if (res.ok) {
-                showToast('Template Saved!');
-                toggleModal('template-modal', false);
-                loadData();
-            }
-        };
-
-        document.getElementById('test-otp-form').onsubmit = async (e) => {
-            e.preventDefault();
-            const data = Object.fromEntries(new FormData(e.target));
-            const system = systems.find(s => s.id === currentSystemId);
-            const res = await fetch(`${api.base}/send-otp`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'x-api-key': system.api_key },
-                body: JSON.stringify({ email: data.email, templateId: data.templateId, templateData: { USERNAME: 'Tester', APP_NAME: system.name } })
-            });
-            if (res.ok) showToast('Test OTP delivered!'); else showToast('Send failed', true);
-        };
+        Object.keys(forms).forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.onsubmit = forms[id];
+        });
 
         function editTemplate(t) {
             const form = document.getElementById('template-form');
+            if (!form) return;
             form.id.value = t.id;
             form.id.readOnly = true;
             form.name.value = t.name;
