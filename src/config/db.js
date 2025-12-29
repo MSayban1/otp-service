@@ -65,40 +65,59 @@ async function initDb() {
         )
     `);
 
-    // MIGRATION LOGIC
-    const settings = await db.get('SELECT * FROM settings WHERE id = 1');
+    // MIGRATION LOGIC (Safe check)
+    const hasSettings = await db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='settings'");
     const existingSystems = await db.get('SELECT COUNT(*) as count FROM systems');
 
-    if (settings && existingSystems.count === 0) {
+    if (hasSettings && existingSystems.count === 0) {
         console.log('Migrating existing settings to Default System...');
-        const defaultSystemId = 'default';
-        const defaultApiKey = (await db.get('SELECT key FROM api_keys LIMIT 1'))?.key || 'sk_default_' + Math.random().toString(36).substring(7);
+        const settings = await db.get('SELECT * FROM settings WHERE id = 1');
 
-        await db.run(`
-            INSERT INTO systems (id, name, api_key, smtp_host, smtp_port, smtp_user, smtp_pass, sender_name)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        `, [
-            defaultSystemId, 'Default System', defaultApiKey,
-            settings.smtp_host, settings.smtp_port, settings.smtp_user, settings.smtp_pass, settings.sender_name
-        ]);
+        if (settings) {
+            const defaultSystemId = 'default';
+            // Safe check for api_keys table too
+            const hasApiKeys = await db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='api_keys'");
+            let defaultApiKey = 'sk_default_' + Math.random().toString(36).substring(7);
 
-        // Migrate templates
-        await db.run('INSERT INTO templates_new (id, system_id, name, subject, body, created_at) SELECT id, ?, name, subject, body, created_at FROM templates', [defaultSystemId]);
+            if (hasApiKeys) {
+                const oldKey = await db.get('SELECT key FROM api_keys LIMIT 1');
+                if (oldKey) defaultApiKey = oldKey.key;
+            }
 
-        // Finalize table replacements
-        await db.exec('DROP TABLE templates');
-        await db.exec('ALTER TABLE templates_new RENAME TO templates');
-        await db.exec('DROP TABLE otps');
-        await db.exec('ALTER TABLE otps_new RENAME TO otps');
-        await db.exec('DROP TABLE settings');
-        await db.exec('DROP TABLE api_keys');
+            await db.run(`
+                INSERT INTO systems (id, name, api_key, smtp_host, smtp_port, smtp_user, smtp_pass, sender_name)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            `, [
+                defaultSystemId, 'Default System', defaultApiKey,
+                settings.smtp_host, settings.smtp_port, settings.smtp_user, settings.smtp_pass, settings.sender_name
+            ]);
+
+            // Migrate templates
+            await db.run('INSERT INTO templates_new (id, system_id, name, subject, body, created_at) SELECT id, ?, name, subject, body, created_at FROM templates', [defaultSystemId]);
+
+            // Finalize table replacements
+            await db.exec('DROP TABLE templates');
+            await db.exec('ALTER TABLE templates_new RENAME TO templates');
+            await db.exec('DROP TABLE otps');
+            await db.exec('ALTER TABLE otps_new RENAME TO otps');
+            await db.exec('DROP TABLE IF EXISTS settings');
+            await db.exec('DROP TABLE IF EXISTS api_keys');
+        }
     } else {
-        // Ensure new tables are active for fresh installs
+        // Ensure new tables are active for fresh installs OR already migrated systems
         const hasTemplates = await db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='templates'");
-        if (hasTemplates) {
+        if (!hasTemplates) {
+            await db.exec('ALTER TABLE templates_new RENAME TO templates');
+            await db.exec('ALTER TABLE otps_new RENAME TO otps');
+        } else {
+            // Check if existing templates table is the new schema
             const tableInfo = await db.all("PRAGMA table_info(templates)");
             if (!tableInfo.find(c => c.name === 'system_id')) {
-                // Fresh run but old schema exists without migration triggered (rare)
+                // This shouldn't happen if migration logic works, but let's be safe
+                await db.exec('DROP TABLE IF EXISTS templates_new');
+                await db.exec('DROP TABLE IF EXISTS otps_new');
+            } else {
+                // If it is already the new schema, just clean up the _new tables
                 await db.exec('DROP TABLE IF EXISTS templates_new');
                 await db.exec('DROP TABLE IF EXISTS otps_new');
             }
