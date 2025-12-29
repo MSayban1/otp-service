@@ -226,7 +226,7 @@
                         </div>
                         <pre class="bg-slate-900 text-indigo-300 p-6 rounded-xl overflow-x-auto">
 // Javascript fetch() example
-fetch('http://localhost:3000/api/send-otp', {
+fetch('<span class="api-url"></span>/api/send-otp', {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json',
@@ -251,7 +251,7 @@ fetch('http://localhost:3000/api/send-otp', {
                             <code>/api/verify-otp</code> for validation.
                         </p>
                         <pre class="bg-slate-900 text-indigo-300 p-6 rounded-xl overflow-x-auto">
-fetch('http://localhost:3000/api/verify-otp', {
+fetch('<span class="api-url"></span>/api/verify-otp', {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json',
@@ -534,8 +534,16 @@ fetch('http://localhost:3000/api/verify-otp', {
             toggleModal('template-modal', true);
         }
 
+        function updateDocs() {
+            const origin = window.location.origin;
+            document.querySelectorAll('.api-url').forEach(el => {
+                el.textContent = origin;
+            });
+        }
+
         // Initial Load
         loadData();
+        updateDocs();
     </script>
 </body>
 
