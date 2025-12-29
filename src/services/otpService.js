@@ -4,23 +4,23 @@ function generate6DigitOTP() {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-async function createOTP(db, email) {
+async function createOTP(db, email, systemId) {
     const code = generate6DigitOTP();
     // Expiry 5 minutes from now
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
 
     await db.run(
-        'INSERT INTO otps (email, code, expires_at) VALUES (?, ?, ?)',
-        [email, code, expiresAt]
+        'INSERT INTO otps (system_id, email, code, expires_at) VALUES (?, ?, ?, ?)',
+        [systemId, email, code, expiresAt]
     );
 
     return code;
 }
 
-async function verifyOTP(db, email, code) {
+async function verifyOTP(db, email, code, systemId) {
     const otp = await db.get(
-        'SELECT * FROM otps WHERE email = ? AND code = ? AND used = 0 ORDER BY created_at DESC LIMIT 1',
-        [email, code]
+        'SELECT * FROM otps WHERE email = ? AND code = ? AND system_id = ? AND used = 0 ORDER BY created_at DESC LIMIT 1',
+        [email, code, systemId]
     );
 
     if (!otp) {

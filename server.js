@@ -10,6 +10,9 @@ const { setupRoutes } = require('./src/routes/api');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Ensure a session token exists for the dashboard
+process.env.ADMIN_SESSION_TOKEN = process.env.ADMIN_SESSION_TOKEN || 'admin-secret-token';
+
 // Middleware
 app.use((req, res, next) => {
     console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);

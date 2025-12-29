@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Email Service Dashboard</title>
+    <title>EmailJS Multi-System Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -24,77 +24,218 @@
         .card:hover {
             transform: translateY(-5px);
         }
+
+        .sidebar-btn {
+            @apply w-full text-left p-3 rounded hover:bg-slate-800 transition flex items-center gap-3;
+        }
+
+        .sidebar-btn.active {
+            @apply bg-indigo-600;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
     </style>
 </head>
 
 <body class="bg-gray-50 min-h-screen text-gray-900">
-    <div class="flex">
+    <!-- Login Page -->
+    <div id="login-screen" class="fixed inset-0 bg-slate-900 z-[100] flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md">
+            <h1 class="text-3xl font-bold mb-2 text-slate-900">Admin Login</h1>
+            <p class="text-gray-500 mb-8">Enter your credentials to manage systems</p>
+            <form id="login-form" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                    <input type="text" name="username" placeholder="admin"
+                        class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input type="password" name="password" placeholder="••••••••"
+                        class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" required>
+                </div>
+                <button type="submit"
+                    class="w-full bg-indigo-600 text-white p-3 rounded-xl font-semibold hover:bg-indigo-700 transition">Login
+                    Dashboard</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="app-content" class="flex hidden">
         <!-- Sidebar -->
-        <aside class="w-64 bg-slate-900 text-white min-h-screen p-6 fixed h-full">
-            <h1 class="text-2xl font-bold mb-10 text-indigo-400">EmailJS Personal</h1>
-            <nav class="space-y-4">
-                <button onclick="showSection('smtp')"
-                    class="w-full text-left p-3 rounded hover:bg-slate-800 transition">SMTP Settings</button>
-                <button onclick="showSection('templates')"
-                    class="w-full text-left p-3 rounded hover:bg-slate-800 transition">Email Templates</button>
-                <button onclick="showSection('apikeys')"
-                    class="w-full text-left p-3 rounded hover:bg-slate-800 transition">API Keys</button>
-                <button onclick="showSection('logs')"
-                    class="w-full text-left p-3 rounded hover:bg-slate-800 transition">OTP Logs</button>
-                <button onclick="showSection('test')"
-                    class="w-full text-left p-3 rounded hover:bg-slate-800 transition">Test OTP</button>
-                <button onclick="showSection('docs')"
-                    class="w-full text-left p-3 rounded hover:bg-slate-800 transition">Integration Docs</button>
+        <aside class="w-72 bg-slate-900 text-white min-h-screen p-6 fixed h-full flex flex-col">
+            <div class="flex items-center gap-3 mb-10">
+                <div id="sidebar-picture"
+                    class="w-10 h-10 bg-indigo-500 rounded-lg flex items-center justify-center font-bold text-xl overflow-hidden">
+                    S
+                </div>
+                <h1 class="text-xl font-bold text-white truncate" id="active-system-name">OTP Service</h1>
+            </div>
+
+            <nav class="space-y-2 flex-grow">
+                <button onclick="showSection('systems')" class="sidebar-btn" id="btn-systems">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16m-7 6h7"></path>
+                    </svg>
+                    Manage Systems
+                </button>
+                <div class="border-t border-slate-800 my-4"></div>
+
+                <div id="system-menu" class="space-y-2 hidden">
+                    <button onclick="showSection('smtp')" class="sidebar-btn" id="btn-smtp">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+                            </path>
+                        </svg>
+                        System Settings
+                    </button>
+                    <button onclick="showSection('templates')" class="sidebar-btn" id="btn-templates">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                            </path>
+                        </svg>
+                        Templates
+                    </button>
+                    <button onclick="showSection('logs')" class="sidebar-btn" id="btn-logs">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                            </path>
+                        </svg>
+                        OTP Logs
+                    </button>
+                    <button onclick="showSection('test')" class="sidebar-btn" id="btn-test">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                        </svg>
+                        Test OTP
+                    </button>
+                    <button onclick="showSection('docs')" class="sidebar-btn" id="btn-docs">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                            </path>
+                        </svg>
+                        Integration Docs
+                    </button>
+                </div>
             </nav>
+
+            <button onclick="logout()"
+                class="text-sm text-slate-400 hover:text-white transition flex items-center gap-2 mt-auto pt-6 border-t border-slate-800">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+                    </path>
+                </svg>
+                Sign Out
+            </button>
         </aside>
 
         <!-- Main Content -->
-        <main class="ml-64 p-10 w-full">
-            <!-- Alert Notification -->
+        <main class="ml-72 p-10 w-full relative">
             <div id="toast"
-                class="hidden fixed top-5 right-5 p-4 rounded-lg shadow-xl text-white transform transition-all duration-300 translate-x-full">
+                class="hidden fixed top-5 right-5 p-4 rounded-lg shadow-xl text-white transform transition-all duration-300 translate-x-full z-[200]">
             </div>
 
+            <!-- Systems Overview -->
+            <section id="systems-section" class="section-content">
+                <div class="flex justify-between items-center mb-10">
+                    <div>
+                        <h2 class="text-3xl font-bold">Your Systems</h2>
+                        <p class="text-gray-500">Manage separate workspaces for your websites</p>
+                    </div>
+                    <button onclick="toggleModal('system-modal', true)"
+                        class="bg-indigo-600 text-white py-3 px-8 rounded-xl font-bold hover:bg-indigo-700 transition shadow-lg shadow-indigo-200">
+                        Create New System
+                    </button>
+                </div>
+
+                <div id="systems-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Systems injected here -->
+                </div>
+            </section>
+
             <!-- SMTP Section -->
-            <section id="smtp-section" class="section-content">
-                <h2 class="text-3xl font-bold mb-8">SMTP Configuration</h2>
+            <section id="smtp-section" class="section-content hidden">
+                <h2 class="text-3xl font-bold mb-8">System Configuration</h2>
                 <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 max-w-2xl">
                     <form id="smtp-form" class="space-y-6">
+                        <input type="hidden" name="systemId">
+
+                        <div class="flex items-center gap-6 mb-8 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                            <div id="system-pic-preview"
+                                class="w-16 h-16 bg-indigo-100 rounded-xl flex items-center justify-center overflow-hidden border-2 border-white shadow-sm">
+                                <svg class="w-8 h-8 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-grow">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">System Logo URL</label>
+                                <input type="text" name="senderPicture" id="pic-input"
+                                    placeholder="https://example.com/logo.png"
+                                    class="w-full p-2 border rounded-lg text-sm outline-none focus:ring-1 focus:ring-indigo-500"
+                                    onchange="previewPic(this.value)">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Service Provider</label>
+                                <select name="smtpService"
+                                    class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
+                                    <option value="gmail">Gmail</option>
+                                    <option value="sendgrid">SendGrid</option>
+                                    <option value="smtp">Custom SMTP</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Sender Name</label>
+                                <input type="text" name="senderName" placeholder="My Website"
+                                    class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
+                                    required>
+                            </div>
+                        </div>
+
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">SMTP Host</label>
                                 <input type="text" name="host" placeholder="smtp.gmail.com"
-                                    class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
-                                    required>
+                                    class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">SMTP Port</label>
                                 <input type="number" name="port" placeholder="465"
-                                    class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
-                                    required>
+                                    class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none">
                             </div>
                         </div>
+
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">SMTP User (Email)</label>
-                            <input type="email" name="user" placeholder="your@gmail.com"
+                            <label class="block text-sm font-medium text-gray-700 mb-1">User / API Key</label>
+                            <input type="text" name="user" placeholder="your@email.com or SG.api-key"
                                 class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
                                 required>
                         </div>
+
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">App Password</label>
-                            <input type="password" name="pass" placeholder="••••••••••••••••"
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Password / Secret</label>
+                            <input type="password" name="pass" placeholder="••••••••"
                                 class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
                                 required>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Sender Name</label>
-                            <input type="text" name="senderName" placeholder="My App Service"
-                                class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
-                                required>
-                        </div>
+
                         <button type="submit"
-                            class="w-full bg-indigo-600 text-white p-3 rounded-xl font-semibold hover:bg-indigo-700 transition shadow-lg shadow-indigo-200">Save
-                            & Verify SMTP</button>
+                            class="w-full bg-indigo-600 text-white p-3 rounded-xl font-semibold hover:bg-indigo-700 transition shadow-lg shadow-indigo-200">
+                            Save System Configuration
+                        </button>
                     </form>
                 </div>
             </section>
@@ -102,48 +243,13 @@
             <!-- Templates Section -->
             <section id="templates-section" class="section-content hidden">
                 <div class="flex justify-between items-center mb-8">
-                    <h2 class="text-3xl font-bold">Email Templates</h2>
+                    <h2 class="text-3xl font-bold">System Templates</h2>
                     <button onclick="toggleModal('template-modal', true)"
-                        class="bg-indigo-600 text-white py-2 px-6 rounded-xl font-semibold hover:bg-indigo-700 transition">Create
-                        Template</button>
+                        class="bg-indigo-600 text-white py-2 px-6 rounded-xl font-semibold hover:bg-indigo-700 transition">
+                        Create Template
+                    </button>
                 </div>
-                <div id="templates-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Templates will be injected here -->
-                </div>
-            </section>
-
-            <!-- API Keys Section -->
-            <section id="apikeys-section" class="section-content hidden">
-                <div class="flex justify-between items-center mb-8">
-                    <h2 class="text-3xl font-bold">API Keys</h2>
-                    <button onclick="generateApiKey()"
-                        class="bg-indigo-600 text-white py-2 px-6 rounded-xl font-semibold hover:bg-indigo-700 transition">Generate
-                        New Key</button>
-                </div>
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    <table class="w-full">
-                        <thead class="bg-gray-50 border-b">
-                            <tr>
-                                <th class="text-left p-4">Name</th>
-                                <th class="text-left p-4">Header Value (x-api-key)</th>
-                                <th class="text-left p-4">Created At</th>
-                                <th class="text-left p-4">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="apikeys-list">
-                            <!-- Keys injected here -->
-                        </tbody>
-                    </table>
-                </div>
-                <div
-                    class="mt-4 p-4 bg-indigo-50 text-indigo-700 rounded-xl text-sm border border-indigo-100 flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <span><strong>Integration Tip:</strong> When calling the API from your website, send your key in the
-                        <code>x-api-key</code> header.</span>
-                </div>
+                <div id="templates-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
             </section>
 
             <!-- Logs Section -->
@@ -160,9 +266,7 @@
                                 <th class="text-left p-4">Sent At</th>
                             </tr>
                         </thead>
-                        <tbody id="logs-list">
-                            <!-- Logs injected here -->
-                        </tbody>
+                        <tbody id="logs-list"></tbody>
                     </table>
                 </div>
             </section>
@@ -175,157 +279,308 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Recipient Email</label>
                             <input type="email" name="email" placeholder="test@example.com"
-                                class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
+                                class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
                                 required>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Select Template</label>
                             <select id="test-template-select" name="templateId"
-                                class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
-                                required>
-                                <!-- Templates dynamically loaded -->
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Select API Key</label>
-                            <select id="test-apikey-select" name="apiKey"
-                                class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
-                                required>
-                                <!-- API Keys dynamically loaded -->
-                            </select>
+                                class="w-full p-3 border rounded-xl outline-none bg-white focus:ring-2 focus:ring-indigo-500"
+                                required></select>
                         </div>
                         <button type="submit"
-                            class="w-full bg-green-600 text-white p-3 rounded-xl font-semibold hover:bg-green-700 transition shadow-lg shadow-green-200">Send
-                            Test OTP</button>
+                            class="w-full bg-green-600 text-white p-3 rounded-xl font-semibold hover:bg-green-700 transition">
+                            Send Test OTP
+                        </button>
                     </form>
                 </div>
             </section>
 
             <!-- Docs Section -->
             <section id="docs-section" class="section-content hidden">
-                <h2 class="text-3xl font-bold mb-8">Integration Documentation</h2>
+                <h2 class="text-3xl font-bold mb-4">Integration Documentation</h2>
+                <div class="p-4 bg-amber-50 rounded-xl border border-amber-200 mb-8 border-l-4">
+                    <div class="flex gap-3">
+                        <svg class="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                                clip-rule="evenodd"></path>
+                        </svg>
+                        <p class="text-sm text-amber-800">Requests must include the API Key for the <strong>current
+                                system</strong>.</p>
+                    </div>
+                </div>
+
                 <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 space-y-8">
                     <div>
                         <h3 class="text-xl font-semibold mb-2">1. Authentication</h3>
                         <p class="text-gray-600 mb-4">All API requests must include your API key in the
-                            <code>x-api-key</code> header.
-                        </p>
+                            <code>x-api-key</code> header.</p>
                         <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                            <span class="text-sm font-mono text-indigo-600">x-api-key: YOUR_SECRET_API_KEY</span>
+                            <span class="text-sm font-mono text-indigo-600">x-api-key: <span id="doc-api-key"
+                                    class="font-bold text-slate-900 underline">SELECT A SYSTEM</span></span>
                         </div>
                     </div>
 
                     <div>
                         <h3 class="text-xl font-semibold mb-2">2. Sending an OTP</h3>
-                        <p class="text-gray-600 mb-4">To send an OTP, use the <code>/api/send-otp</code> endpoint. You
-                            must specify a <code>templateId</code> and optionally <code>templateData</code> for
-                            placeholders.</p>
-                        <div class="mb-4 text-sm text-gray-500">
-                            <strong>Dynamic Placeholders:</strong> In your template body/subject, use
-                            <code>{{VAR_NAME}}</code>. The service automatically handles <code>{{OTP}}</code>.
-                        </div>
-                        <pre class="bg-slate-900 text-indigo-300 p-6 rounded-xl overflow-x-auto">
-// Javascript fetch() example
+                        <pre class="bg-slate-900 text-indigo-300 p-6 rounded-xl overflow-x-auto text-sm">
 fetch('<span class="api-url"></span>/api/send-otp', {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json',
-        'x-api-key': 'sk_your_key_here'
+        'x-api-key': '<span class="current-api-key">your_api_key</span>'
     },
     body: JSON.stringify({
         email: 'user@gmail.com',
-        templateId: 'otp_verification', // The ID you created
-        templateData: {
-            USERNAME: 'John Doe',     // Replaces {{USERNAME}} in template
-            APP_NAME: 'Sayban App'    // Replaces {{APP_NAME}} in template
-        }
+        templateId: 'otp_verification',
+        templateData: { USERNAME: 'John' }
     })
-})
-.then(res => res.json())
-.then(data => console.log(data));</pre>
-                    </div>
-
-                    <div>
-                        <h3 class="text-xl font-semibold mb-2">3. Verifying an OTP</h3>
-                        <p class="text-gray-600 mb-4">When the user enters the code, send it back to
-                            <code>/api/verify-otp</code> for validation.
-                        </p>
-                        <pre class="bg-slate-900 text-indigo-300 p-6 rounded-xl overflow-x-auto">
-fetch('<span class="api-url"></span>/api/verify-otp', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': 'sk_your_key_here'
-    },
-    body: JSON.stringify({
-        email: 'user@gmail.com',
-        code: '123456' // The 6 digit code
-    })
-})
-.then(res => res.json())
-.then(data => {
-    if (data.message === 'OTP verified successfully') {
-        // Successful verification!
-    }
-});</pre>
-                    </div>
-
-                    <div class="p-6 bg-indigo-50 rounded-2xl border border-indigo-100">
-                        <h4 class="font-bold text-indigo-700 mb-2">Pro Tip: No generation needed!</h4>
-                        <p class="text-indigo-600 text-sm">You don't need to generate the 6-digit code yourself. Our
-                            service handles generation, secure storage, and expiry (5 minutes) automatically!</p>
+})</pre>
                     </div>
                 </div>
             </section>
         </main>
     </div>
 
-    <!-- Template Modal -->
+    <!-- Modals -->
+    <div id="system-modal"
+        class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-[300]">
+        <div class="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl">
+            <h2 class="text-2xl font-bold mb-6">Create New System</h2>
+            <form id="system-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">System Name</label>
+                    <input type="text" name="name" placeholder="My New Portfolio"
+                        class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500" required>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs text-gray-500">
+                    An API Key will be generated automatically for this system.
+                </div>
+                <div class="flex justify-end gap-3 mt-6">
+                    <button type="button" onclick="toggleModal('system-modal', false)"
+                        class="px-6 py-2 border rounded-xl font-semibold hover:bg-gray-50">Cancel</button>
+                    <button type="submit"
+                        class="bg-indigo-600 text-white px-8 py-2 rounded-xl font-semibold hover:bg-indigo-700">Create
+                        System</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div id="template-modal"
-        class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl p-8 w-full max-w-2xl">
-            <h2 class="text-2xl font-bold mb-6">Create Template</h2>
+        class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-[300]">
+        <div class="bg-white rounded-2xl p-8 w-full max-w-2xl shadow-2xl">
+            <h2 class="text-2xl font-bold mb-6">Manage Template</h2>
             <form id="template-form" class="space-y-4">
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Template ID (Unique)</label>
-                        <input type="text" name="id" id="template-id-input" placeholder="otp_verification"
-                            class="w-full p-3 border rounded-xl" required>
+                        <label class="block text-sm font-medium text-gray-700">Template ID</label>
+                        <input type="text" name="id" id="template-id-input" placeholder="otp_verify"
+                            class="w-full p-3 border rounded-xl outline-none" required>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Display Name</label>
-                        <input type="text" name="name" placeholder="Welcome OTP" class="w-full p-3 border rounded-xl"
-                            required>
+                        <input type="text" name="name" placeholder="Welcome Mail"
+                            class="w-full p-3 border rounded-xl outline-none" required>
                     </div>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Email Subject</label>
-                    <input type="text" name="subject" placeholder="Your OTP is {{OTP}}"
-                        class="w-full p-3 border rounded-xl" required>
+                    <label class="block text-sm font-medium text-gray-700">Subject</label>
+                    <input type="text" name="subject" placeholder="Your Code is {{OTP}}"
+                        class="w-full p-3 border rounded-xl outline-none" required>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Email Body (HTML allowed)</label>
-                    <textarea name="body" rows="8" placeholder="Hello {{USERNAME}}, your code is {{OTP}}"
-                        class="w-full p-3 border rounded-xl" required></textarea>
-                    <p class="text-xs text-gray-500 mt-1">Available placeholders: {{OTP}}, {{USERNAME}}, {{APP_NAME}}
-                        etc.</p>
+                    <label class="block text-sm font-medium text-gray-700">Body (HTML)</label>
+                    <textarea name="body" rows="6" class="w-full p-3 border rounded-xl outline-none font-mono text-sm"
+                        placeholder="Hello {{USERNAME}}, your code is <b>{{OTP}}</b>" required></textarea>
                 </div>
-                <div class="flex justify-end gap-4 mt-6">
+                <div class="flex justify-end gap-3 mt-6">
                     <button type="button" onclick="toggleModal('template-modal', false)"
-                        class="px-6 py-2 border rounded-xl">Cancel</button>
-                    <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded-xl">Save Template</button>
+                        class="px-6 py-2 border rounded-xl font-semibold hover:bg-gray-50">Cancel</button>
+                    <button type="submit"
+                        class="bg-indigo-600 text-white px-8 py-2 rounded-xl font-semibold hover:bg-indigo-700">Save
+                        Template</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        const apiBase = '/api';
+        let currentSystemId = null;
+        let systems = [];
+        let token = localStorage.getItem('admin_token');
+
+        const api = {
+            base: '/api',
+            headers: () => ({
+                'Content-Type': 'application/json',
+                'Authorization': localStorage.getItem('admin_token')
+            })
+        };
+
+        async function init() {
+            if (!token) {
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('app-content').classList.add('hidden');
+            } else {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('app-content').classList.remove('hidden');
+                await loadSystems();
+                showSection('systems');
+            }
+            updateDocs();
+        }
+
+        async function login(e) {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(e.target));
+            try {
+                const res = await fetch(`${api.base}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                if (res.ok) {
+                    localStorage.setItem('admin_token', result.token);
+                    token = result.token;
+                    init();
+                } else {
+                    showToast(result.error, true);
+                }
+            } catch (err) { showToast('Server connection failed', true); }
+        }
+
+        function logout() {
+            localStorage.removeItem('admin_token');
+            token = null;
+            location.reload();
+        }
+
+        async function loadSystems() {
+            try {
+                const res = await fetch(`${api.base}/systems`, { headers: api.headers() });
+                systems = await res.json();
+                renderSystems();
+            } catch (err) { console.error(err); }
+        }
+
+        function renderSystems() {
+            const list = document.getElementById('systems-list');
+            list.innerHTML = systems.map(s => `
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 card relative group flex flex-col items-center text-center">
+                    <div class="absolute top-4 right-4">
+                        <button onclick="event.stopPropagation(); deleteSystem('${s.id}')" class="text-gray-200 hover:text-red-500 transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    </div>
+                    <div class="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center mb-4 overflow-hidden shadow-inner border border-indigo-100">
+                        ${s.sender_picture ? `<img src="${s.sender_picture}" class="w-full h-full object-cover">` : `<span class="text-2xl font-bold text-indigo-500">${s.name[0]}</span>`}
+                    </div>
+                    <h3 class="font-bold text-lg mb-1">${s.name}</h3>
+                    <p class="text-xs text-slate-400 font-mono mb-4 break-all">${s.api_key}</p>
+                    <button onclick="selectSystem('${s.id}')" class="w-full py-2 bg-indigo-50 text-indigo-600 font-bold rounded-xl hover:bg-indigo-600 hover:text-white transition">
+                        Open Workspace
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        async function selectSystem(id) {
+            currentSystemId = id;
+            const system = systems.find(s => s.id === id);
+
+            // UI Updates
+            document.getElementById('system-menu').classList.remove('hidden');
+            document.getElementById('active-system-name').textContent = system.name;
+            document.getElementById('sidebar-picture').innerHTML = system.sender_picture
+                ? `<img src="${system.sender_picture}" class="w-full h-full object-cover">`
+                : system.name[0];
+
+            showSection('smtp');
+            loadData();
+        }
+
+        async function loadData() {
+            if (!currentSystemId) return;
+            try {
+                const res = await fetch(`${api.base}/dashboard-data?systemId=${currentSystemId}`, { headers: api.headers() });
+                const data = await res.json();
+
+                // Populate SMTP Form
+                const form = document.getElementById('smtp-form');
+                form.systemId.value = currentSystemId;
+                form.host.value = data.currentSystem.smtp_host || '';
+                form.port.value = data.currentSystem.smtp_port || '';
+                form.user.value = data.currentSystem.smtp_user || '';
+                form.pass.value = data.currentSystem.smtp_pass || '';
+                form.senderName.value = data.currentSystem.sender_name || '';
+                form.senderPicture.value = data.currentSystem.sender_picture || '';
+                form.smtpService.value = data.currentSystem.smtp_service || 'gmail';
+                previewPic(data.currentSystem.sender_picture);
+
+                // Populate Templates
+                document.getElementById('templates-list').innerHTML = data.templates.map(t => `
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 card relative group">
+                        <button onclick='deleteTemplate("${t.id}")' class="absolute top-4 right-4 text-gray-200 hover:text-red-500 transition opacity-0 group-hover:opacity-100">
+                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                        <h3 class="font-bold text-lg">${t.name}</h3>
+                        <p class="text-xs font-mono text-gray-400 mb-4">${t.id}</p>
+                        <button onclick='editTemplate(${JSON.stringify(t)})' class="text-indigo-600 font-semibold text-sm">Edit Template</button>
+                    </div>
+                `).join('');
+
+                const selectTpl = document.getElementById('test-template-select');
+                selectTpl.innerHTML = data.templates.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+
+                // Populate Logs
+                document.getElementById('logs-list').innerHTML = data.logs.map(l => `
+                    <tr class="border-b transition hover:bg-slate-50">
+                        <td class="p-4 font-medium">${l.email}</td>
+                        <td class="p-4"><code class="bg-indigo-50 text-indigo-600 px-2 py-1 rounded text-xs">${l.code}</code></td>
+                        <td class="p-4 text-xs text-gray-500">${new Date(l.expires_at).toLocaleString()}</td>
+                        <td class="p-4">
+                            <span class="px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${l.used ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}">
+                                ${l.used ? 'Used' : 'Active'}
+                            </span>
+                        </td>
+                        <td class="p-4 text-xs text-gray-400">${new Date(l.created_at).toLocaleString()}</td>
+                    </tr>
+                `).join('');
+
+                // Docs
+                document.getElementById('doc-api-key').textContent = data.currentSystem.api_key;
+                document.querySelectorAll('.current-api-key').forEach(el => el.textContent = data.currentSystem.api_key);
+
+            } catch (err) { console.error(err); }
+        }
+
+        // Actions
+        async function deleteSystem(id) {
+            if (!confirm('ALL DATA for this system will be lost. Continue?')) return;
+            try {
+                await fetch(`${api.base}/system/${id}`, { method: 'DELETE', headers: api.headers() });
+                if (currentSystemId === id) location.reload(); else loadSystems();
+            } catch (err) { showToast('Delete failed', true); }
+        }
+
+        async function deleteTemplate(id) {
+            if (!confirm('Delete this template?')) return;
+            try {
+                const res = await fetch(`${api.base}/template/${id}`, { method: 'DELETE', headers: api.headers() });
+                if (res.ok) { showToast('Template removed'); loadData(); }
+            } catch (err) { showToast('Error', true); }
+        }
 
         function showSection(id) {
             document.querySelectorAll('.section-content').forEach(s => s.classList.add('hidden'));
             document.getElementById(`${id}-section`).classList.remove('hidden');
-            loadData();
+
+            document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active', 'bg-slate-800'));
+            const activeBtn = document.getElementById(`btn-${id}`);
+            if (activeBtn) activeBtn.classList.add('active', 'bg-slate-800');
         }
 
         function toggleModal(id, show) {
@@ -336,214 +591,101 @@ fetch('<span class="api-url"></span>/api/verify-otp', {
             }
         }
 
-        function showToast(msg, isError = false) {
-            const toast = document.getElementById('toast');
-            toast.textContent = msg;
-            toast.className = `fixed top-5 right-5 p-4 rounded-lg shadow-xl text-white transform transition-all duration-300 ${isError ? 'bg-red-500' : 'bg-green-500'}`;
-            toast.classList.remove('hidden');
-            setTimeout(() => toast.classList.add('hidden'), 3000);
+        function previewPic(url) {
+            const preview = document.getElementById('system-pic-preview');
+            if (url) preview.innerHTML = `<img src="${url}" class="w-full h-full object-cover">`;
+            else preview.innerHTML = `<svg class="w-8 h-8 text-indigo-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path></svg>`;
         }
 
-        async function loadData() {
-            try {
-                const res = await fetch(`${apiBase}/dashboard-data`);
-                const data = await res.json();
+        function showToast(msg, isErr = false) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = `fixed top-5 right-5 p-4 rounded-xl shadow-2xl text-white transform transition-all duration-300 z-[500] ${isErr ? 'bg-red-500' : 'bg-green-600'}`;
+            t.classList.remove('hidden', 'translate-x-full');
+            setTimeout(() => { t.classList.add('translate-x-full'); setTimeout(() => t.classList.add('hidden'), 300); }, 3000);
+        }
 
-                // Populate SMTP
-                if (data.settings) {
-                    const form = document.getElementById('smtp-form');
-                    form.host.value = data.settings.smtp_host || '';
-                    form.port.value = data.settings.smtp_port || '';
-                    form.user.value = data.settings.smtp_user || '';
-                    form.senderName.value = data.settings.sender_name || '';
-                }
+        function updateDocs() {
+            const origin = window.location.origin;
+            document.querySelectorAll('.api-url').forEach(el => el.textContent = origin);
+        }
 
-                // Populate Templates
-                const templatesList = document.getElementById('templates-list');
-                const testTemplateSelect = document.getElementById('test-template-select');
+        // Forms
+        document.getElementById('login-form').onsubmit = login;
 
-                templatesList.innerHTML = data.templates.map(t => `
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 card relative group">
-                        <button onclick='deleteTemplate("${t.id}")' class="absolute top-4 right-4 text-gray-300 hover:text-red-500 transition opacity-0 group-hover:opacity-100">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                        </button>
-                        <h3 class="font-bold text-lg">${t.name}</h3>
-                        <p class="text-sm text-gray-500 mb-4">ID: ${t.id}</p>
-                        <div class="text-xs text-gray-400 truncate mb-4">${t.subject}</div>
-                        <button onclick='editTemplate(${JSON.stringify(t)})' class="text-indigo-600 font-semibold text-sm">Edit Template</button>
-                    </div>
-                `).join('');
-
-                testTemplateSelect.innerHTML = data.templates.map(t => `<option value="${t.id}">${t.name} (${t.id})</option>`).join('');
-
-                // Populate API Keys
-                const keysList = document.getElementById('apikeys-list');
-                const testKeySelect = document.getElementById('test-apikey-select');
-
-                keysList.innerHTML = data.apiKeys.map(k => `
-                    <tr class="border-b">
-                        <td class="p-4">${k.name}</td>
-                        <td class="p-4"><code class="bg-gray-100 px-2 py-1 rounded">${k.key}</code></td>
-                        <td class="p-4 text-gray-500 text-sm">${new Date(k.created_at).toLocaleString()}</td>
-                        <td class="p-4">
-                            <button onclick='deleteApiKey("${k.key}")' class="text-red-400 hover:text-red-600">Delete</button>
-                        </td>
-                    </tr>
-                `).join('');
-
-                testKeySelect.innerHTML = data.apiKeys.map(k => `<option value="${k.key}">${k.name}</option>`).join('');
-
-                // Populate Logs
-                const logsList = document.getElementById('logs-list');
-                logsList.innerHTML = data.logs.map(l => `
-                    <tr class="border-b">
-                        <td class="p-4 font-medium">${l.email}</td>
-                        <td class="p-4"><code class="bg-indigo-50 text-indigo-600 px-2 py-1 rounded">${l.code}</code></td>
-                        <td class="p-4 text-xs text-gray-500">${new Date(l.expires_at).toLocaleString()}</td>
-                        <td class="p-4">
-                            <span class="px-2 py-1 rounded-full text-xs ${l.used ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">
-                                ${l.used ? 'Used' : 'Active'}
-                            </span>
-                        </td>
-                        <td class="p-4 text-xs text-gray-500">${new Date(l.created_at).toLocaleString()}</td>
-                    </tr>
-                `).join('');
-
-            } catch (err) {
-                console.error(err);
+        document.getElementById('system-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(e.target));
+            const res = await fetch(`${api.base}/system`, {
+                method: 'POST',
+                headers: api.headers(),
+                body: JSON.stringify(data)
+            });
+            if (res.ok) {
+                showToast('System created!');
+                toggleModal('system-modal', false);
+                await loadSystems();
+                e.target.reset();
             }
-        }
+        };
 
-        // Actions
-        async function deleteTemplate(id) {
-            if (!confirm('Are you sure you want to delete this template?')) return;
-            try {
-                const res = await fetch(`${apiBase}/template/${id}`, { method: 'DELETE' });
-                if (res.ok) { showToast('Template deleted'); loadData(); }
-            } catch (err) { showToast('Delete failed', true); }
-        }
-
-        async function deleteApiKey(key) {
-            if (!confirm('Are you sure you want to delete this API Key?')) return;
-            try {
-                const res = await fetch(`${apiBase}/api-key/${key}`, { method: 'DELETE' });
-                if (res.ok) { showToast('API Key deleted'); loadData(); }
-            } catch (err) { showToast('Delete failed', true); }
-        }
-
-        // Event Listeners
         document.getElementById('smtp-form').onsubmit = async (e) => {
             e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData);
-
-            try {
-                const res = await fetch(`${apiBase}/update-smtp`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                const result = await res.json();
-                if (res.ok) {
-                    showToast('SMTP Settings Saved & Verified!');
-                } else {
-                    showToast(result.error || 'Verification Failed', true);
-                }
-            } catch (err) {
-                showToast('Error connecting to server', true);
+            const data = Object.fromEntries(new FormData(e.target));
+            const res = await fetch(`${api.base}/update-smtp`, {
+                method: 'POST',
+                headers: api.headers(),
+                body: JSON.stringify(data)
+            });
+            if (res.ok) {
+                showToast('Settings saved successfully!');
+                loadSystems(); // To update sidebar/cards logo
+                loadData();
+            } else {
+                const err = await res.json();
+                showToast(err.error || 'Save failed', true);
             }
         };
 
         document.getElementById('template-form').onsubmit = async (e) => {
             e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData);
-
-            try {
-                const res = await fetch(`${apiBase}/create-template`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                if (res.ok) {
-                    showToast('Template Saved!');
-                    toggleModal('template-modal', false);
-                    loadData();
-                }
-            } catch (err) {
-                showToast('Error saving template', true);
+            const data = Object.fromEntries(new FormData(e.target));
+            data.systemId = currentSystemId;
+            const res = await fetch(`${api.base}/create-template`, {
+                method: 'POST',
+                headers: api.headers(),
+                body: JSON.stringify(data)
+            });
+            if (res.ok) {
+                showToast('Template Saved!');
+                toggleModal('template-modal', false);
+                loadData();
             }
         };
 
         document.getElementById('test-otp-form').onsubmit = async (e) => {
             e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData);
-
-            try {
-                const res = await fetch(`${apiBase}/send-otp`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-api-key': data.apiKey
-                    },
-                    body: JSON.stringify({
-                        email: data.email,
-                        templateId: data.templateId,
-                        templateData: {
-                            USERNAME: 'Test User',
-                            APP_NAME: 'EmailJS Dashboard Test'
-                        }
-                    })
-                });
-                const result = await res.json();
-                if (res.ok) {
-                    showToast('Test OTP sent successfully!');
-                } else {
-                    showToast(result.error || 'Send failed', true);
-                }
-            } catch (err) {
-                showToast('Error connecting to server', true);
-            }
+            const data = Object.fromEntries(new FormData(e.target));
+            const system = systems.find(s => s.id === currentSystemId);
+            const res = await fetch(`${api.base}/send-otp`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-api-key': system.api_key },
+                body: JSON.stringify({ email: data.email, templateId: data.templateId, templateData: { USERNAME: 'Tester', APP_NAME: system.name } })
+            });
+            if (res.ok) showToast('Test OTP delivered!'); else showToast('Send failed', true);
         };
-
-        async function generateApiKey() {
-            const name = prompt('Enter a name for this API Key:', 'Main Website');
-            if (!name) return;
-
-            try {
-                await fetch(`${apiBase}/generate-api-key`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name })
-                });
-                showToast('API Key Generated!');
-                loadData();
-            } catch (err) {
-                showToast('Error generating key', true);
-            }
-        }
 
         function editTemplate(t) {
             const form = document.getElementById('template-form');
             form.id.value = t.id;
-            document.getElementById('template-id-input').readOnly = true;
+            form.id.readOnly = true;
             form.name.value = t.name;
             form.subject.value = t.subject;
             form.body.value = t.body;
             toggleModal('template-modal', true);
         }
 
-        function updateDocs() {
-            const origin = window.location.origin;
-            document.querySelectorAll('.api-url').forEach(el => {
-                el.textContent = origin;
-            });
-        }
-
-        // Initial Load
-        loadData();
-        updateDocs();
+        init();
     </script>
 </body>
 

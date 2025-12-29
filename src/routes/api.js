@@ -1,25 +1,31 @@
 const express = require('express');
 const { getApiController } = require('../controllers/apiController');
 const { authenticateApiKey } = require('../middleware/auth');
+const { authenticateAdmin } = require('../middleware/sessionAuth');
 
 const router = express.Router();
 
 const setupRoutes = (db) => {
     const controller = getApiController(db);
-    const auth = authenticateApiKey(db);
+    const authKey = authenticateApiKey(db);
+    const authAdmin = authenticateAdmin;
 
-    // Public / Protected Admin endpoints (For personal use, we assume the dashboard is secured or run locally)
-    // In a real multi-user scenario, these would have separate auth.
-    router.post('/generate-api-key', controller.generateApiKey);
-    router.delete('/api-key/:key', controller.deleteApiKey);
-    router.post('/update-smtp', controller.updateSmtp);
-    router.post('/create-template', controller.createTemplate);
-    router.delete('/template/:id', controller.deleteTemplate);
-    router.get('/dashboard-data', controller.getDashboardData);
+    // Public Auth
+    router.post('/login', controller.login);
+
+    // Admin Dashboard Endpoints (Protected by Admin Session/Token)
+    router.get('/systems', authAdmin, controller.getSystems);
+    router.post('/system', authAdmin, controller.createSystem);
+    router.delete('/system/:id', authAdmin, controller.deleteSystem);
+
+    router.post('/update-smtp', authAdmin, controller.updateSmtp);
+    router.post('/create-template', authAdmin, controller.createTemplate);
+    router.delete('/template/:id', authAdmin, controller.deleteTemplate);
+    router.get('/dashboard-data', authAdmin, controller.getDashboardData);
 
     // API Integration endpoints (Protected by API Key)
-    router.post('/send-otp', auth, controller.sendOtp);
-    router.post('/verify-otp', auth, controller.verifyOtp);
+    router.post('/send-otp', authKey, controller.sendOtp);
+    router.post('/verify-otp', authKey, controller.verifyOtp);
 
     return router;
 };
